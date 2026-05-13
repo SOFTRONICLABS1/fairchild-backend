@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from httpx import HTTPError, HTTPStatusError
 
 from app.schemas.common import ApiResponse, ErrorDetail
@@ -52,17 +52,34 @@ def wordpress_authorize(body: WordPressAuthorizeRequest) -> ApiResponse[WordPres
 
 @router.post('/media/upload', response_model=ApiResponse[Any])
 async def wordpress_upload_media(
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(default=None),
+    image_url: str | None = Form(default=None, alias='image_url'),
 ) -> ApiResponse[Any]:
     credentials = _resolve_wordpress_credentials()
+    if file is None and not (image_url and image_url.strip()):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=ErrorDetail(
+                code='INVALID_MEDIA_INPUT',
+                message='Provide either file or image_url',
+            ).model_dump(),
+        )
 
     try:
-        payload = await WordPressService.upload_media(
-            domain=credentials['domain'],
-            wc_consumer_key=credentials['wc_consumer_key'],
-            wc_consumer_secret=credentials['wc_consumer_secret'],
-            picture=file,
-        )
+        if image_url and image_url.strip():
+            payload = await WordPressService.upload_media_from_url(
+                domain=credentials['domain'],
+                wc_consumer_key=credentials['wc_consumer_key'],
+                wc_consumer_secret=credentials['wc_consumer_secret'],
+                image_url=image_url.strip(),
+            )
+        else:
+            payload = await WordPressService.upload_media(
+                domain=credentials['domain'],
+                wc_consumer_key=credentials['wc_consumer_key'],
+                wc_consumer_secret=credentials['wc_consumer_secret'],
+                picture=file,
+            )
         return ApiResponse(data=payload)
     except HTTPStatusError as exc:
         raise HTTPException(

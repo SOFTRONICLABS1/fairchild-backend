@@ -33,17 +33,36 @@ class ImpactCampaignService:
             return response.json()
 
     @classmethod
+    def _build_pagination_params(
+        cls,
+        *,
+        limit: int | None,
+        offset: int | None,
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {}
+        if limit is None or offset is None:
+            return params
+        page = (offset // limit) + 1
+        params['PageSize'] = limit
+        params['Page'] = page
+        return params
+
+    @classmethod
     async def fetch_campaigns(
         cls,
         *,
         account_sid: str,
         auth_token: str,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> dict[str, Any]:
+        params = cls._build_pagination_params(limit=limit, offset=offset)
         return await cls._request(
             account_sid=account_sid,
             auth_token=auth_token,
             method='GET',
             path='/Campaigns',
+            params=params or None,
         )
 
     @classmethod
@@ -67,12 +86,16 @@ class ImpactCampaignService:
         *,
         account_sid: str,
         auth_token: str,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> dict[str, Any]:
+        params = cls._build_pagination_params(limit=limit, offset=offset)
         return await cls._request(
             account_sid=account_sid,
             auth_token=auth_token,
             method='GET',
             path='/Catalogs',
+            params=params or None,
         )
 
     @classmethod
@@ -83,8 +106,10 @@ class ImpactCampaignService:
         auth_token: str,
         catalog_id: str,
         keyword: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> dict[str, Any]:
-        params: dict[str, Any] = {}
+        params = cls._build_pagination_params(limit=limit, offset=offset)
         if keyword:
             params['keyword'] = keyword
         return await cls._request(
@@ -102,8 +127,10 @@ class ImpactCampaignService:
         account_sid: str,
         auth_token: str,
         keyword: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> dict[str, Any]:
-        params: dict[str, Any] = {}
+        params = cls._build_pagination_params(limit=limit, offset=offset)
         if keyword:
             params['keyword'] = keyword
         return await cls._request(
@@ -152,12 +179,16 @@ class ImpactCampaignService:
         account_sid: str,
         auth_token: str,
         campaign_id: str,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> dict[str, Any]:
+        params = cls._build_pagination_params(limit=limit, offset=offset)
         return await cls._request(
             account_sid=account_sid,
             auth_token=auth_token,
             method='GET',
             path=f'/Campaigns/{campaign_id}/Deals',
+            params=params or None,
         )
 
     @classmethod

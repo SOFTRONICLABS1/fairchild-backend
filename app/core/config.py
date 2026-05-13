@@ -12,6 +12,19 @@ class Settings(BaseSettings):
     FRONTEND_LOCAL_ORIGIN: str = 'http://localhost:3000'
     FRONTEND_PROD_ORIGIN: str = 'https://app.domain.com'
 
+    CJ_TOKEN: str = ''
+
+    IMPACT_ACCOUNT_SID: str = ''
+    IMPACT_AUTH_TOKEN: str = ''
+
+    WORDPRESS_DOMAIN: str = ''
+    WORDPRESS_WC_CONSUMER_KEY: str = ''
+    WORDPRESS_WC_CONSUMER_SECRET: str = ''
+
+    METRICOOL_TOKEN: str = ''
+
+    RENDERFORM_API_KEY: str = ''
+
 
 @lru_cache
 def get_settings() -> Settings:

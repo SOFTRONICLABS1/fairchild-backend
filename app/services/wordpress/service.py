@@ -23,14 +23,34 @@ class WordPressService:
         wc_consumer_secret: str,
         picture: UploadFile,
     ) -> Any:
+        file_bytes = await picture.read()
+        return await cls.upload_media_bytes(
+            domain=domain,
+            wc_consumer_key=wc_consumer_key,
+            wc_consumer_secret=wc_consumer_secret,
+            filename=picture.filename or 'upload.bin',
+            content_type=picture.content_type or 'application/octet-stream',
+            file_bytes=file_bytes,
+        )
+
+    @classmethod
+    async def upload_media_bytes(
+        cls,
+        *,
+        domain: str,
+        wc_consumer_key: str,
+        wc_consumer_secret: str,
+        filename: str,
+        content_type: str,
+        file_bytes: bytes,
+    ) -> Any:
         base = cls._normalize_domain(domain)
         url = f'{base}/wp-json/wp/v2/media'
-        file_bytes = await picture.read()
         files = {
             'file': (
-                picture.filename or 'upload.bin',
+                filename or 'upload.bin',
                 file_bytes,
-                picture.content_type or 'application/octet-stream',
+                content_type or 'application/octet-stream',
             )
         }
 
@@ -42,6 +62,29 @@ class WordPressService:
             )
             response.raise_for_status()
             return response.json()
+
+    @classmethod
+    async def upload_media_from_url(
+        cls,
+        *,
+        domain: str,
+        wc_consumer_key: str,
+        wc_consumer_secret: str,
+        image_url: str,
+    ) -> Any:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.get(image_url)
+            response.raise_for_status()
+            content_type = response.headers.get('content-type', 'application/octet-stream')
+            filename = image_url.split('/')[-1] or 'remote-image'
+            return await cls.upload_media_bytes(
+                domain=domain,
+                wc_consumer_key=wc_consumer_key,
+                wc_consumer_secret=wc_consumer_secret,
+                filename=filename,
+                content_type=content_type,
+                file_bytes=response.content,
+            )
 
     @classmethod
     async def create_product(

@@ -41,6 +41,11 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+## Local Env Credentials
+- For local testing, credentials can be loaded from `.env` at app startup.
+- Supported keys: `CJ_TOKEN`, `IMPACT_ACCOUNT_SID`, `IMPACT_AUTH_TOKEN`, `WORDPRESS_DOMAIN`, `WORDPRESS_WC_CONSUMER_KEY`, `WORDPRESS_WC_CONSUMER_SECRET`, `METRICOOL_TOKEN`, `RENDERFORM_API_KEY`.
+- You can still call each platform `authorize` endpoint later to override in-memory values for the running process.
+
 ## Docs
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
@@ -108,13 +113,16 @@ Next, we can add each platform router from your cURL commands one-by-one.
 - Auth format: Basic Auth using `account_sid` as username and `auth_token` as password
 - If direct Basic Auth is sent on the request, it overrides stored credentials
 - Header sent upstream: `Accept: application/json`
+- Pagination params supported on list endpoints: `limit` (default `20`), `offset` (default `0`)
 
 ## Impact: Catalogs and Properties
 - Backend route: `GET /api/v1/impact/catalogs`
 - Backend route: `GET /api/v1/impact/catalogs/{catalog_id}/items`
 - Optional query param: `keyword`
+- Pagination params supported: `limit` (default `20`), `offset` (default `0`)
 - Backend route: `GET /api/v1/impact/catalogs/item-search`
 - Optional query param: `keyword`
+- Pagination params supported: `limit` (default `20`), `offset` (default `0`)
 - Backend route: `GET /api/v1/impact/media-properties`
 
 ## Impact: Tracking Links

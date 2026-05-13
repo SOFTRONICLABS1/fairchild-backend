@@ -120,6 +120,15 @@ async def query_cj_products(body: CJAdsProductsQueryRequest) -> ApiResponse[dict
             ).model_dump(),
         )
 
+    if body.offset > 0 and not (body.page and body.page.strip()):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=ErrorDetail(
+                code='CJ_PAGINATION_RULE',
+                message='For CJ pagination, use page token from previous response nextPage when offset > 0',
+            ).model_dump(),
+        )
+
     try:
         payload = await CJAdsQueryService.query_products(
             bearer_token=bearer_token,
@@ -143,4 +152,3 @@ async def query_cj_products(body: CJAdsProductsQueryRequest) -> ApiResponse[dict
                 message='Unable to reach CJ Ads API',
             ).model_dump(),
         ) from exc
-

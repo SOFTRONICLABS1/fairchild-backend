@@ -52,7 +52,10 @@ class CJAdsQueryService:
             query_parts.append(f'partnerIds: [{partner_ids_csv}]')
 
         query_parts.append(f'limit: {request.limit}')
-        query_parts.append(f'offset: {request.offset}')
+        if request.page and request.page.strip():
+            query_parts.append(f'page: "{request.page.strip()}"')
+        else:
+            query_parts.append(f'offset: {request.offset}')
         args_block = ', '.join(query_parts)
 
         return (

@@ -58,6 +58,8 @@ def impact_authorize(body: ImpactAuthorizeRequest) -> ApiResponse[ImpactAuthoriz
 
 @router.get('/campaigns', response_model=ApiResponse[dict])
 async def get_impact_campaigns(
+    limit: int = Query(default=20, ge=1, le=100, description='Page size for list pagination'),
+    offset: int = Query(default=0, ge=0, description='Offset for list pagination'),
     credentials: HTTPBasicCredentials | None = Depends(impact_basic),
 ) -> ApiResponse[dict]:
     account_sid, auth_token = _resolve_impact_credentials(credentials)
@@ -66,6 +68,8 @@ async def get_impact_campaigns(
         payload = await ImpactCampaignService.fetch_campaigns(
             account_sid=account_sid,
             auth_token=auth_token,
+            limit=limit,
+            offset=offset,
         )
         return ApiResponse(data=payload)
     except HTTPStatusError as exc:
@@ -123,6 +127,8 @@ async def get_impact_campaign_by_id(
 @router.get('/campaigns/{campaign_id}/deals', response_model=ApiResponse[dict])
 async def get_impact_deals(
     campaign_id: str,
+    limit: int = Query(default=20, ge=1, le=100, description='Page size for list pagination'),
+    offset: int = Query(default=0, ge=0, description='Offset for list pagination'),
     credentials: HTTPBasicCredentials | None = Depends(impact_basic),
 ) -> ApiResponse[dict]:
     account_sid, auth_token = _resolve_impact_credentials(credentials)
@@ -132,6 +138,8 @@ async def get_impact_deals(
             account_sid=account_sid,
             auth_token=auth_token,
             campaign_id=campaign_id,
+            limit=limit,
+            offset=offset,
         )
         return ApiResponse(data=payload)
     except HTTPStatusError as exc:
@@ -190,6 +198,8 @@ async def get_impact_deal_by_id(
 
 @router.get('/catalogs', response_model=ApiResponse[dict])
 async def get_impact_catalogs(
+    limit: int = Query(default=20, ge=1, le=100, description='Page size for list pagination'),
+    offset: int = Query(default=0, ge=0, description='Offset for list pagination'),
     credentials: HTTPBasicCredentials | None = Depends(impact_basic),
 ) -> ApiResponse[dict]:
     account_sid, auth_token = _resolve_impact_credentials(credentials)
@@ -198,6 +208,8 @@ async def get_impact_catalogs(
         payload = await ImpactCampaignService.fetch_catalogs(
             account_sid=account_sid,
             auth_token=auth_token,
+            limit=limit,
+            offset=offset,
         )
         return ApiResponse(data=payload)
     except HTTPStatusError as exc:
@@ -223,6 +235,8 @@ async def get_impact_catalogs(
 async def get_impact_catalog_items(
     catalog_id: str,
     keyword: str | None = Query(default=None),
+    limit: int = Query(default=20, ge=1, le=100, description='Page size for list pagination'),
+    offset: int = Query(default=0, ge=0, description='Offset for list pagination'),
     credentials: HTTPBasicCredentials | None = Depends(impact_basic),
 ) -> ApiResponse[dict]:
     account_sid, auth_token = _resolve_impact_credentials(credentials)
@@ -233,6 +247,8 @@ async def get_impact_catalog_items(
             auth_token=auth_token,
             catalog_id=catalog_id,
             keyword=keyword,
+            limit=limit,
+            offset=offset,
         )
         return ApiResponse(data=payload)
     except HTTPStatusError as exc:
@@ -257,6 +273,8 @@ async def get_impact_catalog_items(
 @router.get('/catalogs/item-search', response_model=ApiResponse[dict])
 async def search_impact_items(
     keyword: str | None = Query(default=None),
+    limit: int = Query(default=20, ge=1, le=100, description='Page size for list pagination'),
+    offset: int = Query(default=0, ge=0, description='Offset for list pagination'),
     credentials: HTTPBasicCredentials | None = Depends(impact_basic),
 ) -> ApiResponse[dict]:
     account_sid, auth_token = _resolve_impact_credentials(credentials)
@@ -266,6 +284,8 @@ async def search_impact_items(
             account_sid=account_sid,
             auth_token=auth_token,
             keyword=keyword,
+            limit=limit,
+            offset=offset,
         )
         return ApiResponse(data=payload)
     except HTTPStatusError as exc:
