@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_router
-from app.core.config import get_settings
+from app.core.config import get_cors_origins, get_settings
 from app.schemas.common import ApiResponse, ErrorDetail
 from app.services.platform_auth_service import platform_auth_service
 
@@ -25,7 +25,7 @@ def root() -> dict[str, str]:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_LOCAL_ORIGIN, settings.FRONTEND_PROD_ORIGIN],
+    allow_origins=get_cors_origins(settings),
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],
