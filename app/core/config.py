@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = '/api/v1'
     FRONTEND_LOCAL_ORIGIN: str = 'http://localhost:3000'
     FRONTEND_PROD_ORIGIN: str = 'https://app.domain.com'
+    FRONTEND_ORIGINS: str = ''
 
     CJ_TOKEN: str = ''
 
@@ -32,3 +33,24 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+def get_cors_origins(settings: Settings | None = None) -> list[str]:
+    resolved_settings = settings or get_settings()
+
+    def normalize(raw_value: str) -> list[str]:
+        origins: list[str] = []
+        for origin in raw_value.split(','):
+            cleaned = origin.strip()
+            if cleaned and cleaned not in origins:
+                origins.append(cleaned)
+        return origins
+
+    if resolved_settings.FRONTEND_ORIGINS.strip():
+        return normalize(resolved_settings.FRONTEND_ORIGINS)
+
+    origins = normalize(resolved_settings.FRONTEND_LOCAL_ORIGIN)
+    for origin in normalize(resolved_settings.FRONTEND_PROD_ORIGIN):
+        if origin not in origins:
+            origins.append(origin)
+    return origins
